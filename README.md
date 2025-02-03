@@ -26,8 +26,10 @@ Explication du Dockerfile :
 
 Build 
 -On compile l’application avec Maven sans exécuter les tests.
+
 -Le .jar est généré dans target/.
 
 Run
 -On récupère uniquement le .jar depuis l’étape de build.
+
 -On exécute l’appli avec java -jar myapp.jar.
