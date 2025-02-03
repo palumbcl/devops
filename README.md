@@ -18,7 +18,7 @@ ENV POSTGRES_DB=db \
 
 COPY *.sql /docker-entrypoint-initdb.d/
 ```
-##1-4 Why do we need a multistage build? And explain each step of this dockerfile.
+## 1-4 Why do we need a multistage build? And explain each step of this dockerfile.
 
 Ça permet d’avoir une image Docker plus légère en séparant la compilation et l’exécution.
 
