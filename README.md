@@ -3,8 +3,12 @@ Pour ne pas les avoir en clair dans un fichier comme on l'a actuellement. Cela g
 ## 1-2 Why do we need a volume to be attached to our postgres container?
 Afin d'avoir des données persistantes.
 ## 1-3 Document your database container essentials: commands and Dockerfile.
-```docker run -v pg_data:/var/lib/postgresql/data --net=app-network --name=db palumbcl11/database```
-```docker build -t palumbcl11/database .```
+```
+docker run -v pg_data:/var/lib/postgresql/data --net=app-network --name=db palumbcl11/database
+```
+```
+docker build -t palumbcl11/database .
+```
 ```
 FROM postgres:14.1-alpine
 
