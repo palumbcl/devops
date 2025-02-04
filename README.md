@@ -52,9 +52,6 @@ docker-compose est essentiel car il simplifie le déploiement d’un projet en r
 ## 1-8 Document your docker-compose file.
 
 ```
-## Fichier docker-compose.yml
-version: "3.7"
-
 ## Définition des services
 services:
   ## Service backend
@@ -62,33 +59,24 @@ services:
     ## Image à utiliser
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    ## Nom du conteneur
-    container_name: backend
     ## Réseaux auxquels le conteneur doit être connecté
     networks:
       - app-network2
     ## Dépendances
     depends_on:
-      - database
-    ## Ports à exposer
-    ports:
-      - "8080:8080"
+      - db
 
   ## Service database
-  database:
+  db:
+    env_file: ".env"
     ## Image à utiliser
-    image: postgres:14.1-alpine
-    ## Nom du conteneur
-    container_name: db
+    build:
+      context: ./database
     ## Variables d'environnement
     environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: usr
-      POSTGRES_PASSWORD: pwd
-    ## Ports à exposer
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ## Réseaux auxquels le conteneur doit être connecté
     networks:
       - app-network2
@@ -99,15 +87,11 @@ services:
   ## Service frontend
   frontend:
     ## Image à utiliser
-    image: httpd:2.4
-    container_name: frontend
+    build:
+      context: ./frontend
     ## Ports à exposer
     ports:
       - "80:80"
-    ## Volumes à monter
-    volumes:
-      - ./frontend/index.html:/usr/local/apache2/htdocs/index.html
-      - ./frontend/httpd.conf:/usr/local/apache2/conf/httpd.conf
     ## Dépendances
     depends_on:
       - backend
@@ -118,7 +102,6 @@ services:
 ## Réseaux à créer
 networks:
   app-network2:
-    name: app-network2
 
 ## Volumes à créer
 volumes:
