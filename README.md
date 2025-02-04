@@ -1,4 +1,6 @@
 # TPs Devops
+## TP 1-Docker
+
 ## 1-1 Why should we run the container with a flag -e to give the environment variables ?
 Pour ne pas les avoir en clair dans un fichier comme on l'a actuellement. Cela garantit donc une meilleure sécurité.
 ## 1-2 Why do we need a volume to be attached to our postgres container?
@@ -111,3 +113,11 @@ volumes:
 ```
 ## 1-9 Document your publication commands and published images in dockerhub.
 ## 1-10 Why do we put our images into an online repo ?
+
+## TP 2 -Docker
+
+## 2-1 What are testcontainers?
+
+## 2-2 Document your Github Actions configurations.
+## 2-3 For what purpose do we need to push docker images?
+## 2-4 Document your quality gate configuration.
