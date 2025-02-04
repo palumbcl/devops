@@ -112,11 +112,23 @@ volumes:
     name: pg_data
 ```
 ## 1-9 Document your publication commands and published images in dockerhub.
+
+```
+docker tag devops-database palumbcl11/devops-database:1.0
+```
+
+```
+docker push palumbcl11/devops-database:1.0
+```
+
+![image](https://github.com/user-attachments/assets/9c95b27e-2590-41f1-ae10-0acd6796fd5d)
+
 ## 1-10 Why do we put our images into an online repo ?
+Cela permet de gérer différentes version d'une application et d'éviter de les perdre en local. On peut également les récupérer depuis n'importe quel environnement.
 
 ## TP 2 -Docker
 
-## 2-1 What are testcontainers?
+## 2-1 What are testcontainers ?
 
 They simply are java libraries that allow you to run a bunch of docker containers while testing.
 ## 2-2 Document your Github Actions configurations.
@@ -148,5 +160,47 @@ jobs:
         run: mvn clean verify
         working-directory: tp-devops-correction-docker-main/simple-api
 ```
-## 2-3 For what purpose do we need to push docker images?
+## 2-3 For what purpose do we need to push docker images ?
+
+Nous poussons des images Docker pour les partager et les déployer sur différents environnements.
 ## 2-4 Document your quality gate configuration.
+
+```
+# Job pour sonar
+  build:
+    name: Build and analyze
+    # On utilise la dernière version d'ubuntu
+    runs-on: ubuntu-latest
+    # On définit les étapes à effectuer
+    steps:
+      # On commence par récupérer le code source
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 21
+        # On utilise l'action setup-java pour installer la version 21 de java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: "corretto" # Alternative distribution options are available.
+      - name: Cache SonarQube packages
+        # On utilise l'action cache pour stocker les packages de sonar
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        # On utilise l'action cache pour stocker les packages de maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        # On lance la commande maven pour construire le projet et lancer l'analyse sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=palumbcl_devops
+        working-directory: tp-devops-correction-docker-main/simple-api
+```
