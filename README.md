@@ -118,6 +118,7 @@ volumes:
 
 ## 2-1 What are testcontainers?
 
+They simply are java libraries that allow you to run a bunch of docker containers while testing.
 ## 2-2 Document your Github Actions configurations.
 ## 2-3 For what purpose do we need to push docker images?
 ## 2-4 Document your quality gate configuration.
