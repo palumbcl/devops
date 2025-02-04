@@ -1,0 +1,55 @@
+## Définition des services
+services:
+  ## Service backend
+  backend:
+    ## Image à utiliser
+    build:
+      context: ./backend
+    ## Réseaux auxquels le conteneur doit être connecté
+    networks:
+      - app-network2
+    ## Dépendances
+    depends_on:
+      - db
+
+  ## Service database
+  db:
+    env_file: ".env"
+    ## Image à utiliser
+    build:
+      context: ./database
+    ## Variables d'environnement
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ## Réseaux auxquels le conteneur doit être connecté
+    networks:
+      - app-network2
+    ## Volumes à monter
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  ## Service frontend
+  frontend:
+    ## Image à utiliser
+    build:
+      context: ./frontend
+    ## Ports à exposer
+    ports:
+      - "80:80"
+    ## Dépendances
+    depends_on:
+      - backend
+    ## Réseaux auxquels le conteneur doit être connecté
+    networks:
+      - app-network2
+
+## Réseaux à créer
+networks:
+  app-network2:
+
+## Volumes à créer
+volumes:
+  pg_data:
+    name: pg_data
