@@ -1,17 +1,25 @@
 # TPs Devops
+
 ## TP 1-Docker
 
 ## 1-1 Why should we run the container with a flag -e to give the environment variables ?
+
 Pour ne pas les avoir en clair dans un fichier comme on l'a actuellement. Cela garantit donc une meilleure sécurité.
+
 ## 1-2 Why do we need a volume to be attached to our postgres container?
+
 Afin d'avoir des données persistantes.
+
 ## 1-3 Document your database container essentials: commands and Dockerfile.
+
 ```
 docker run -v pg_data:/var/lib/postgresql/data --net=app-network --name=db palumbcl11/database
 ```
+
 ```
 docker build -t palumbcl11/database .
 ```
+
 ```
 FROM postgres:14.1-alpine
 
@@ -21,13 +29,14 @@ ENV POSTGRES_DB=db \
 
 COPY *.sql /docker-entrypoint-initdb.d/
 ```
+
 ## 1-4 Why do we need a multistage build? And explain each step of this dockerfile.
 
 Ça permet d’avoir une image Docker plus légère en séparant la compilation et l’exécution.
 
 Explication du Dockerfile :
 
-Build 
+Build
 
 -On compile l’application avec Maven sans exécuter les tests.
 
@@ -42,16 +51,19 @@ Run
 ## 1-5 Why do we need a reverse proxy ?
 
 Un reverse proxy est utile pour sécuriser les connexions (SSL), répartir la charge entre plusieurs serveurs et centraliser l’authentification au même endroit, au lieu de la gérer sur chaque appli.
+
 ## 1-6 Why is docker-compose so important ?
 
 docker-compose est essentiel car il simplifie le déploiement d’un projet en regroupant toute la configuration dans un seul fichier. Il permet de gérer plusieurs services facilement, d’automatiser leur lancement et d’avoir une vue claire de l’ensemble du système.
-## 1-7 Document docker-compose most important commands. 
 
-```docker-compose up -d``` : build et run les conteneurs en tâche de fond. 
-```docker-compose down -v``` : arrêter et supprimer les conteneurs, ainsi que leurs volumes. 
-```docker-compose logs -f``` : afficher les logs. 
-```docker-compose ps``` : afficher l'état des conteneurs. 
-```docker-compose exec  ... ```: exécuter une commande dans un conteneur en cours d'exécution.
+## 1-7 Document docker-compose most important commands.
+
+`docker-compose up -d` : build et run les conteneurs en tâche de fond.
+`docker-compose down -v` : arrêter et supprimer les conteneurs, ainsi que leurs volumes.
+`docker-compose logs -f` : afficher les logs.
+`docker-compose ps` : afficher l'état des conteneurs.
+`docker-compose exec  ... `: exécuter une commande dans un conteneur en cours d'exécution.
+
 ## 1-8 Document your docker-compose file.
 
 ```
@@ -111,6 +123,7 @@ volumes:
   pg_data:
     name: pg_data
 ```
+
 ## 1-9 Document your publication commands and published images in dockerhub.
 
 ```
@@ -124,6 +137,7 @@ docker push palumbcl11/devops-database:1.0
 ![image](https://github.com/user-attachments/assets/9c95b27e-2590-41f1-ae10-0acd6796fd5d)
 
 ## 1-10 Why do we put our images into an online repo ?
+
 Cela permet de gérer différentes version d'une application et d'éviter de les perdre en local. On peut également les récupérer depuis n'importe quel environnement.
 
 ## TP 2 -Docker
@@ -131,6 +145,7 @@ Cela permet de gérer différentes version d'une application et d'éviter de les
 ## 2-1 What are testcontainers ?
 
 They simply are java libraries that allow you to run a bunch of docker containers while testing.
+
 ## 2-2 Document your Github Actions configurations.
 
 ```
@@ -160,9 +175,11 @@ jobs:
         run: mvn clean verify
         working-directory: tp-devops-correction-docker-main/simple-api
 ```
+
 ## 2-3 For what purpose do we need to push docker images ?
 
 Nous poussons des images Docker pour les partager et les déployer sur différents environnements.
+
 ## 2-4 Document your quality gate configuration.
 
 ```
@@ -203,4 +220,151 @@ Nous poussons des images Docker pour les partager et les déployer sur différen
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=palumbcl_devops
         working-directory: tp-devops-correction-docker-main/simple-api
+```
+
+## 3-1 Document your inventory and base commands
+
+```
+yml
+all:
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+  children:
+    prod:
+      hosts: clement.palumbo.takima.cloud
+```
+
+![alt text](image.png)
+
+```
+bash
+ansible all -i inventories/setup.yml -m apt -a "name=apache2 state=absent" --become
+```
+
+## 3-2 Document your playbook
+
+```
+yml
+- hosts: all
+  gather_facts: true
+  become: true
+
+  roles:
+    - docker
+```
+
+## 3-3 Document your docker_container tasks configuration.
+
+![alt text](image-1.png)
+
+setup.yml:
+
+```
+yml
+all:
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+  children:
+    prod:
+      hosts: clement.palumbo.takima.cloud
+```
+
+playbook.yml:
+
+```
+yml
+- hosts: all
+  gather_facts: true
+  become: true
+
+  roles:
+    - copy_env_file
+    - create_network
+    - launch_database
+    - launch_app
+    - launch_proxy
+```
+
+.env:
+
+```
+# psql
+POSTGRES_DB=db
+POSTGRES_USER=usr
+POSTGRES_PASSWORD=pwd
+# backend
+DATABASE_HOST=db
+DATABASE_PASSWORD=pwd
+```
+
+```
+---
+# tasks file for roles/copy_env_file
+- name: Copy .env file to the server
+  copy:
+    src: .env
+    dest: /home/admin/.env
+
+```
+
+```
+---
+# tasks file for roles/create_network
+- name: Create app to database network
+  docker_network:
+    name: app_database_network
+
+- name: Create proxy to app network
+  docker_network:
+    name: proxy_app_network
+```
+
+```
+---
+# tasks file for roles/launch_app
+- name: Launch application container
+  docker_container:
+    name: simple-api
+    image: palumbcl11/tp-devops-backend:latest
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+      - name: proxy_app_network
+```
+
+```
+yml
+---
+# tasks file for roles/launch_database
+- name: Launch database container
+  docker_container:
+    name: db
+    image: palumbcl11/tp-devops-db:latest
+    state: started
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+```
+
+```
+---
+yml
+# tasks file for roles/launch_proxy
+- name: Launch proxy container
+  docker_container:
+    name: frontend
+    image: palumbcl11/tp-devops-http:latest
+    state: started
+    pull: yes
+    ports:
+      - "80:80"
+    networks:
+      - name: proxy_app_network
+    restart_policy: always
 ```

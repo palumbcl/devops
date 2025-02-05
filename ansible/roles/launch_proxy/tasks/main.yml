@@ -1,0 +1,13 @@
+---
+# tasks file for roles/launch_proxy
+- name: Launch proxy container
+  docker_container:
+    name: frontend
+    image: palumbcl11/tp-devops-http:latest
+    state: started
+    pull: yes
+    ports:
+      - "80:80"
+    networks:
+      - name: proxy_app_network
+    restart_policy: always

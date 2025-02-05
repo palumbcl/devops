@@ -1,0 +1,13 @@
+---
+# tasks file for roles/launch_database
+- name: Launch database container
+  docker_container:
+    name: db
+    image: palumbcl11/tp-devops-db:latest
+    state: started
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+    volumes:
+      - pg_data:/var/lib/postgresql/data

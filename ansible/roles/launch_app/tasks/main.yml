@@ -1,0 +1,11 @@
+---
+# tasks file for roles/launch_app
+- name: Launch application container
+  docker_container:
+    name: simple-api
+    image: palumbcl11/tp-devops-backend:latest
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+      - name: proxy_app_network
