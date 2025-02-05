@@ -354,7 +354,7 @@ yml
 
 ```
 ---
-yml
+yaml
 # tasks file for roles/launch_proxy
 - name: Launch proxy container
   docker_container:
