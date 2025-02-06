@@ -39,6 +39,13 @@ jobs:
           context: ./tp-devops-correction-docker-main/http-server
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-http:latest
           push: true
+
+      - name: Build and push front image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./tp-devops-correction-docker-main/front
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-front:latest
+          push: true
   # Job pour sonar
   build:
     name: Build and analyze
