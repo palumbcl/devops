@@ -43,7 +43,7 @@ jobs:
       - name: Build and push front image
         uses: docker/build-push-action@v3
         with:
-          context: ./tp-devops-correction-docker-main/front
+          context: ./tp-devops-correction-docker-main/devops-front-main
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-front:latest
           push: true
   # Job pour sonar
