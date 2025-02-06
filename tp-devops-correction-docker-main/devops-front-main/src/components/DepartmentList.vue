@@ -2,7 +2,11 @@
   <div class="department-list">
     <a-row type="flex" justify="center">
       <a-col :xs="24" :sm="22" :md="12" :lg="8" :xl="5">
-        <a-row class="department" v-for="department in departments" :key="department.id">
+        <a-row
+          class="department"
+          v-for="department in departments"
+          :key="department.id"
+        >
           <router-link :to="`/departments/${department.name}`">
             <a-col :span="12">{{ department.id }}</a-col>
             <a-col :span="12">{{ department.name }}</a-col>
@@ -17,18 +21,18 @@
 export default {
   name: "DepartmentList",
   props: {
-    msg: String
+    msg: String,
   },
-  data: function() {
+  data: function () {
     return {
-      departments: []
+      departments: [],
     };
   },
-  mounted: function() {
-    fetch(`http://${process.env.VUE_APP_API_URL}/departments/`)
-      .then(response => response.json())
-      .then(data => (this.departments = data));
-  }
+  mounted: function () {
+    fetch(`http://${process.env.VUE_APP_API_URL}/departments`)
+      .then((response) => response.json())
+      .then((data) => (this.departments = data));
+  },
 };
 </script>
 
